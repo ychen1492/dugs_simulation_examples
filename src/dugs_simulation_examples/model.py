@@ -27,6 +27,30 @@ def compute_flux(
     conns_c,
     conns_area,
 ):
+    """Compute the fluxes at the interface in order to
+    reconstruct the velocity at the center of the cells
+
+    :param n_cells: number of grid cells
+    :type n_cells: int
+    :param n_dim: dimension of the reservoir
+    :type n_dim: int
+    :param adj_mat_offset: the offset of adjacency matrix
+    :type adj_mat_offset: np.ndarray
+    :param adj_mat_cols: the columns of adjacency matrix
+    :type adj_mat_cols: np.ndarray
+    :param adj_mat: adjacency matrix
+    :type adj_mat: np.ndarray
+    :param centroids: the centroids of grid cells
+    :type centroids: np.ndarray
+    :param conns_n: the number of connections
+    :type conns_n: np.ndarray
+    :param conns_c: the center of connections
+    :type conns_c: np.ndarray
+    :param conns_area: the area of the connections
+    :type conns_area: np.ndarray
+    :return: the fluxes at the interface
+    :rtype: np.ndarray
+    """
     mat_flux = {}
     for cell_id in range(n_cells):
         a = np.zeros((adj_mat_offset[cell_id + 1] - adj_mat_offset[cell_id], n_dim))
@@ -47,6 +71,7 @@ def compute_flux(
 
 
 class Model(DartsModel):
+
     def __init__(
         self,
         set_nx,
@@ -60,6 +85,29 @@ class Model(DartsModel):
         overburden,
         n_points=32,
     ):
+        """The constructor of the model
+
+        :param set_nx: the number of grid blocks in x direction
+        :type set_nx: int
+        :param set_ny: the number of grid blocks in y direction
+        :type set_ny: int
+        :param set_nz: the number of grid blocks in z direction
+        :type set_nz: int
+        :param perms: permeability values of each grid
+        :type perms: np.ndarray
+        :param poro: porosity values of each grid
+        :type poro: np.ndarray
+        :param set_dx: the cartesian resolution in x direction
+        :type set_dx: float
+        :param set_dy: the cartesian resolution in y direction
+        :type set_dy: float
+        :param set_dz: the cartesian resolution in z direction
+        :type set_dz: float
+        :param overburden: the number of overburden layers
+        :type overburden: int
+        :param n_points: the number of OBL points, default as 32
+        :type n_points: int
+        """
         # call base class constructor
         super().__init__()
 
@@ -102,6 +150,8 @@ class Model(DartsModel):
         #                        }
 
     def prepare_velocity_reconstruction(self):
+        """
+        """
         n_dim = 3
         self.mat_flux = {}
         adj_mat_offset = np.array(
@@ -135,6 +185,14 @@ class Model(DartsModel):
         )
 
     def reconstruct_velocities(self, fluxes):
+        """Method to reconstruct the velocity at the cells' center.
+        Can be used at the each time step.
+
+        :param fluxes: fluxes at the interface
+        :type fluxes: np.ndarray
+        :return: the velocity in x, y and z direction
+        :rtype: np.ndarray
+        """
         vels = np.zeros((self.reservoir.discr_mesh.n_cells, 3))
         conn_id = 0
         max_conns = 10

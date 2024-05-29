@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 import pandas as pd
-from geomodel.generate_models import stratified_model_simulation
+from generate_models import stratified_model_simulation
 
 
 def execute(proxy_model, file_name, output_dir):

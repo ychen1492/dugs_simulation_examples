@@ -1,4 +1,4 @@
-from geomodel.generate_models import heterogeneous_model_simulation
+from generate_models import heterogeneous_model_simulation
 from run_serial_resolution import execute
 
 

@@ -1,5 +1,5 @@
 import numpy as np
-from geomodel.generate_models import stratified_model_simulation
+from generate_models import stratified_model_simulation
 from run_serial_resolution import execute
 
 
