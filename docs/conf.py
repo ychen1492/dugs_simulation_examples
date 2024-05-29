@@ -71,14 +71,21 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.ifconfig",
     "sphinx.ext.mathjax",
-    "sphinx.ext.napoleon",
+    "sphinx.ext.napoleon"
 ]
 
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
+apidoc_module_dir = '../src'
+apidoc_output_dir = '_api/'
+autodoc_mock_imports = ["darts",
+                        "numpy",
+                        "pandas",
+                        "matplotlib",
+                        "scipy",
+                        "pykrige",
+                        "gstools",
+                        "skimage"]
 
-# The suffix of source filenames.
-source_suffix = ".rst"
+source_suffix = ['.rst', '.md']
 
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
@@ -87,7 +94,7 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "dugs_simulation_examples"
+project = "Direct Use Geothermal Simulation Examples"
 copyright = "2024, Yuan Chen"
 
 # The version info for the project you're documenting, acts as replacement for
@@ -150,18 +157,6 @@ todo_emit_warnings = True
 
 
 # -- Options for HTML output -------------------------------------------------
-
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-html_theme = "alabaster"
-
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-html_theme_options = {
-    "sidebar_width": "300px",
-    "page_width": "1200px"
-}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
@@ -269,18 +264,6 @@ latex_documents = [
 # If false, no module index is generated.
 # latex_domain_indices = True
 
-# -- External mapping --------------------------------------------------------
-python_version = ".".join(map(str, sys.version_info[0:2]))
-intersphinx_mapping = {
-    "sphinx": ("https://www.sphinx-doc.org/en/master", None),
-    "python": ("https://docs.python.org/" + python_version, None),
-    "matplotlib": ("https://matplotlib.org", None),
-    "numpy": ("https://numpy.org/doc/stable", None),
-    "sklearn": ("https://scikit-learn.org/stable", None),
-    "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
-    "setuptools": ("https://setuptools.pypa.io/en/stable/", None),
-    "pyscaffold": ("https://pyscaffold.org/en/stable", None),
-}
-
-print(f"loading configurations for {project} {version} ...", file=sys.stderr)
+html_theme = 'sphinx_book_theme'
+html_title = 'Direct Use Geothermal Systems (DUGS) simulation examples'
+html_static_path = ['_static']

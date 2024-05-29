@@ -4,7 +4,7 @@ import numpy as np
 from darts.discretizer import value_vector
 from darts.physics.properties.iapws.iapws_property import iapws_total_enthalpy_evalutor, iapws_water_density_evaluator
 from matplotlib import pyplot as plt
-from src.model import XarrayApi
+from model import XarrayApi
 
 plt.rcParams["font.family"] = "DejaVu Sans"
 plotparams = {

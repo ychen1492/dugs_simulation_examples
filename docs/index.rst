@@ -2,7 +2,7 @@
 Welcome to Direct Use Geothermal Systems's simulation examples documentation!
 ========================
 
-This is the documentation of **Direct Use Geothermal Systems's simulation examples**.
+This is the documentation of DUGS's simulation examples.
 
 .. attention::
    Geothermal Reference Simulation is under active development and currently in a pre-alpha state.

@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 import pandas as pd
-from src.geomodel.generate_models import homogeneous_model_simulation
+from geomodel.generate_models import homogeneous_model_simulation
 
 
 def execute_output_temperature(simulation_model):
