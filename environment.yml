@@ -1,0 +1,29 @@
+name: dugs_simulation
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python
+  - pip
+  - numpy
+  - scipy
+  - numba
+  - pandas
+  - xarray
+  - scikit-learn
+  - joblib
+  - matplotlib
+  - pyvista
+  - trame
+  - panel
+  - jupyter
+  - ipympl
+  - ipywidgets
+  - iapws
+  - opmcpg
+  - open-darts
+
+  - pip:
+    - -e .

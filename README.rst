@@ -30,20 +30,25 @@
 |
 
 ========================
-dugs_simulation_examples
+Direct Use Geothermal Systems's Simulation Examples
 ========================
 
 
-    Add a short description here!
+========================
+**What is DUGS?**
+Direct Use Geothermal Systems (DUGS), which are also known as low enthalpy geothermal systems, are mainly conduction mechanism dominated.
+========================
 
+========================
+**System requirements**
+- Windows 10/11; Linux
+- Language: Python
+========================
 
-A longer description of your project goes here...
-
-
-.. _pyscaffold-notes:
-
-Note
-====
-
-This project has been set up using PyScaffold 4.5. For details and usage
-information on PyScaffold see https://pyscaffold.org/.
+========================
+**Computational Dependencies**
+- Packages and libraries
+    - Before running any py files, make sure the environment install `requirements.txt`
+    - Create a blank conda environment and activate it
+    - Run `pip install -r <path to requirements.txt>` in terminal
+========================
