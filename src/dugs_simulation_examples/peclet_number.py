@@ -6,6 +6,39 @@ from darts.physics.properties.iapws.iapws_property import iapws_total_enthalpy_e
 from matplotlib import pyplot as plt
 from src.model import XarrayApi
 
+plt.rcParams["font.family"] = "DejaVu Sans"
+plotparams = {
+    "axes.titlesize": "12",
+    "axes.labelsize": "12",
+    "axes.spines.left": False,
+    "axes.spines.right": False,
+    "axes.spines.top": False,
+    "axes.spines.bottom": False,
+    "axes.grid": True,
+    "xtick.labelsize": "14",
+    "ytick.labelsize": "14",
+    "figure.titlesize": "20",
+    "figure.titleweight": "bold",
+    "grid.linestyle": "-",
+    "grid.linewidth": 0.5,
+    "grid.alpha": "0.5",
+    "ytick.major.width": 0,
+    "xtick.major.width": 0,
+    "axes.unicode_minus": False,
+    "legend.fontsize": 9,
+    #   "text.usetex": True,
+    "xtick.bottom": False,
+    "xtick.major.top": False,
+    "xtick.minor.visible": True,
+    # 'xtick.major.bottom':True,
+    # 'xtick.labelbottom': True,
+    "ytick.major.left": True,
+    "ytick.labelright": False,
+}
+
+
+plt.rcParams.update(plotparams)
+
 # Basic parameters
 dx = dy = 18  # grid spacing in x and y, m
 dz = 6  # grid spacing in z, m
@@ -24,7 +57,7 @@ kappa_water = 0.6 * 86.4  # water, kJ/m/day/K
 models = ["ho", "str", "he"]
 directory = r"C:\Users\ychen62\Repository\reference-simulation\base"
 ncols = 3
-fig, ax = plt.subplots(ncols=ncols, nrows=1)
+fig, ax = plt.subplots(ncols=ncols, nrows=1, figsize=(15, 7))
 for i, category in enumerate(models):
     peclet = []
     dimensionless_time = []
@@ -71,12 +104,12 @@ for i, category in enumerate(models):
         flatten_temperature = np.mean(all_temperature.flatten())
         flatten_pressure = np.mean(all_pressure.flatten())
 
-        state = value_vector([flatten_pressure, 0])
-        E = iapws_total_enthalpy_evalutor(flatten_temperature)
+        state = value_vector([production_well_bhp, 0])
+        E = iapws_total_enthalpy_evalutor(production_temperature)
         enthalpy = E.evaluate(state) / 18.015
 
         water_density = density_evaluator.evaluate(
-            [flatten_pressure, enthalpy * 18.015]
+            [production_well_bhp, enthalpy * 18.015]
         )
 
         # Total convection at this time step
@@ -105,5 +138,5 @@ ax[0].set_ylabel("Peclet number [-]")
 ax[1].set_ylabel("Temperature [K]")
 plt.tight_layout()
 ax[2].set_ylabel("Power [kJ/day]")
-
+# plt.savefig(fname='temp_1.png', dpi=300, bbox_inches='tight', pad_inches=0.5)
 plt.show()

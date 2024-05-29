@@ -13,6 +13,7 @@ from darts.reservoirs.struct_reservoir import StructReservoir
 from darts.tools.gen_cpg_grid import gen_cpg_grid
 from iapws import SeaWater
 from iapws.iapws97 import _Bound_Ph, _Region1, _Region4, _TSat_P
+from numba import njit
 from xarray import DataArray, Dataset
 
 
@@ -74,27 +75,35 @@ class XarrayApi:
         data_vars = {
             "Perm": (
                 common_dims,
-                np.zeros((self.ny, self.nx, self.nz))
-                if self.nz is not None
-                else np.zeros((self.ny, self.nx)),
+                (
+                    np.zeros((self.ny, self.nx, self.nz))
+                    if self.nz is not None
+                    else np.zeros((self.ny, self.nx))
+                ),
             ),
             "Poro": (
                 common_dims,
-                np.zeros((self.ny, self.nx, self.nz))
-                if self.nz is not None
-                else np.zeros((self.ny, self.nx)),
+                (
+                    np.zeros((self.ny, self.nx, self.nz))
+                    if self.nz is not None
+                    else np.zeros((self.ny, self.nx))
+                ),
             ),
             "Pressure": (
                 [*common_dims, time_dim],
-                np.zeros((self.ny, self.nx, self.nz, number_of_time_steps))
-                if self.nz is not None
-                else np.zeros((self.ny, self.nx, number_of_time_steps)),
+                (
+                    np.zeros((self.ny, self.nx, self.nz, number_of_time_steps))
+                    if self.nz is not None
+                    else np.zeros((self.ny, self.nx, number_of_time_steps))
+                ),
             ),
             "Temperature": (
                 [*common_dims, time_dim],
-                np.zeros((self.ny, self.nx, self.nz, number_of_time_steps))
-                if self.nz is not None
-                else np.zeros((self.ny, self.nx, number_of_time_steps)),
+                (
+                    np.zeros((self.ny, self.nx, self.nz, number_of_time_steps))
+                    if self.nz is not None
+                    else np.zeros((self.ny, self.nx, number_of_time_steps))
+                ),
             ),
         }
 
@@ -341,6 +350,37 @@ class XarrayApi:
         return xarray_data
 
 
+@njit
+def compute_flux(
+    n_cells,
+    n_dim,
+    adj_mat_offset,
+    adj_mat_cols,
+    adj_mat,
+    centroids,
+    conns_n,
+    conns_c,
+    conns_area,
+):
+    mat_flux = {}
+    for cell_id in range(n_cells):
+        a = np.zeros((adj_mat_offset[cell_id + 1] - adj_mat_offset[cell_id], n_dim))
+        cell_centroid = centroids[cell_id]
+        ids = np.argsort(
+            adj_mat_cols[adj_mat_offset[cell_id] : adj_mat_offset[cell_id + 1]]
+        )
+        for i, k in enumerate(
+            range(adj_mat_offset[cell_id], adj_mat_offset[cell_id + 1])
+        ):
+            conn_id = adj_mat[k]
+            n = conns_n[conn_id]
+            face_centroid = conns_c[conn_id]
+            sign = np.sign((face_centroid - cell_centroid).dot(n))
+            a[ids[i]] = sign * conns_area[conn_id] * n
+        mat_flux[cell_id] = np.linalg.inv(a.T.dot(a)).dot(a.T)
+    return mat_flux
+
+
 class Model(DartsModel):
     def __init__(
         self,
@@ -360,7 +400,7 @@ class Model(DartsModel):
 
         self.timer.node["initialization"].start()
         self.report_time = 365
-        self.total_time = 30 * 365
+        self.total_time = 100 * 365
         self.nx = set_nx
         self.ny = set_ny
         self.nz = set_nz
@@ -370,9 +410,9 @@ class Model(DartsModel):
         self.perm = perms
         self.poro = poro
         self.overburden = overburden
-        # self.set_reservoir()
-
-        self.set_cpg_reservoir()
+        self.set_reservoir()
+        # self.set_cpg_reservoir()
+        # self.prepare_velocity_reconstruction()
         self.set_physics(n_points=n_points)
         self.set_sim_params(
             first_ts=1e-5,
@@ -396,6 +436,64 @@ class Model(DartsModel):
         #                        self.physics.vars[1]: enth_init
         #                        }
 
+    def prepare_velocity_reconstruction(self):
+        n_dim = 3
+        self.mat_flux = {}
+        adj_mat_offset = np.array(
+            self.reservoir.discr_mesh.adj_matrix_offset, dtype=np.int32
+        )
+        adj_mat_cols = np.array(
+            self.reservoir.discr_mesh.adj_matrix_cols, dtype=np.int32
+        )
+        adj_mat = np.array(self.reservoir.discr_mesh.adj_matrix, dtype=np.int32)
+        centroids = np.array([c.values for c in self.reservoir.discr_mesh.centroids])
+        # Prepare structured arrays for connections
+        n_conns = len(self.reservoir.discr_mesh.conns)
+        conns_n = np.zeros((n_conns, n_dim))
+        conns_c = np.zeros((n_conns, n_dim))
+        conns_area = np.zeros(n_conns)
+
+        for i, conn in enumerate(self.reservoir.discr_mesh.conns):
+            conns_n[i] = np.array(conn.n.values)
+            conns_c[i] = np.array(conn.c.values)
+            conns_area[i] = conn.area
+        self.mat_flux = compute_flux(
+            self.reservoir.discr_mesh.n_cells,
+            n_dim,
+            adj_mat_offset,
+            adj_mat_cols,
+            adj_mat,
+            centroids,
+            conns_n,
+            conns_c,
+            conns_area,
+        )
+
+    def reconstruct_velocities(self, fluxes):
+        vels = np.zeros((self.reservoir.discr_mesh.n_cells, 3))
+        conn_id = 0
+        max_conns = 10
+        for cell_m in range(self.reservoir.discr_mesh.n_cells):
+            rhs = np.zeros(max_conns)
+            face_id = 0
+            while self.reservoir.mesh.block_m[conn_id] == cell_m:
+                cell_p = self.reservoir.mesh.block_p[conn_id]
+                # skip well connections
+                if not (
+                    cell_p >= self.reservoir.mesh.n_res_blocks
+                    and cell_p < self.reservoir.mesh.n_blocks
+                ):
+                    rhs[face_id] = fluxes[conn_id]
+                    # face = self.unstr_discr.faces[cell_m][face_id]
+                    # assert(self.discr_mesh.adj_matrix_cols[self.discr_mesh.adj_matrix_offset[cell_m] + face_id] == cell_p)
+                    # assert(face.cell_id2 == cell_p or face.face_id2 + self.mesh.n_blocks == cell_p)
+                    face_id += 1
+                conn_id += 1
+
+            assert face_id == self.mat_flux[cell_m].shape[1]
+            vels[cell_m] = self.mat_flux[cell_m].dot(rhs[:face_id])
+        return vels
+
     def set_cpg_reservoir(self):
         dz_list = [15, 30, 60, 120]
         underburden = self.overburden
@@ -415,7 +513,7 @@ class Model(DartsModel):
             permy=perm,
             permz=perm,
             poro=poro,
-            start_z=1855,
+            start_z=1800,
             burden_dz=dz_list,
         )
         coord = output["COORD"]

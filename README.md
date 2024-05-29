@@ -3,7 +3,7 @@
 [fair-software.nl](https://fair-software.nl) recommendations:
 
 [![Github](https://img.shields.io/badge/github-repo-000.svg?logo=github&labelColor=gray&color=blue/target?=https://github.com/ychen1492/dugs_simulation_examples)](https://github.com/ychen1492/dugs_simulation_examples)
-[![GitHub](https://img.shields.io/github/license/ychen1492/reference-simulation)](https://github.com/ychen1492/dugs_simulation_examples/blob/main/LICENSE)
+[![GitHub](https://img.shields.io/github/license/ychen1492/reference-simulation)](https://github.com/ychen1492/dugs_simulation_examples/blob/master/LICENSE.txt)
 
 
 Code quality checks
@@ -33,6 +33,6 @@ Direct Use Geothermal Systems (DUGS), which are also known as low enthalpy geoth
     - The results of these files are csv files which have production temperature for each dx, dy and dz values
 3. `src/run_serial_layers.py`
     - It is a main file to run multiple forward simulations to investigate the minimum confining layers
-    - The results fo these files are csv files whcih record the temperature and pressure of the top reservoir layer
+    - The results of these files are csv files which record the temperature and pressure of the top reservoir layer
 4. `src/real_base.py`
     - It is the file which is used to generate the vtk results using the the resolution and confining layers information derived from `src/run_serial_resolution.py`.

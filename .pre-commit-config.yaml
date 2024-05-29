@@ -40,13 +40,7 @@ repos:
   rev: 5.13.2
   hooks:
   - id: isort
-    args: ["--profile", "black", "--filter-files", "--project", "module1"]
-
-# - repo: https://github.com/psf/black
-#   rev: 23.7.0
-#   hooks:
-#   - id: black
-#     language_version: python3
+    args: ["--profile", "black", "--filter-files"]
 
 # # If like to embrace black styles even in the docs:
 # - repo: https://github.com/asottile/blacken-docs
@@ -63,8 +57,8 @@ repos:
   ## You can add flake8 plugins via `additional_dependencies`:
   #  additional_dependencies: [flake8-bugbear]
 
-## Check for misspells in documentation files:
-# - repo: https://github.com/codespell-project/codespell
-#   rev: v2.2.5
-#   hooks:
-#   - id: codespell
+# Check for misspells in documentation files:
+- repo: https://github.com/codespell-project/codespell
+  rev: v2.2.5
+  hooks:
+  - id: codespell

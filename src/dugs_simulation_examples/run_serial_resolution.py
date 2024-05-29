@@ -14,17 +14,27 @@ def execute(proxy_model, file_name, output_dir):
         time_step_arr = np.append(time_step_arr, proxy_model.total_time - even_end)
     time_index = 0
     # proxy_model.output_to_vtk(ith_step=time_index, output_directory='vtk')
-    # properties = proxy_model.output_properties()
-    # pressure = properties[0, :]
-    # temperature = properties[2, :]
-    # proxy_model.xrdata.set_dynamic_grid_xarray(time_index,
-    #                                            "Pressure",
-    #                                            np.rot90(pressure.reshape((proxy_model.nx, proxy_model.ny,
-    #                                                                       proxy_model.nz), order='F')))
-    # proxy_model.xrdata.set_dynamic_grid_xarray(time_index,
-    #                                            "Temperature",
-    #                                            np.rot90(temperature.reshape((proxy_model.nx, proxy_model.ny,
-    #                                                                          proxy_model.nz), order='F')))
+    properties = proxy_model.output_properties()
+    pressure = properties[0, :]
+    temperature = properties[2, :]
+    proxy_model.xrdata.set_dynamic_grid_xarray(
+        time_index,
+        "Pressure",
+        np.rot90(
+            pressure.reshape(
+                (proxy_model.nx, proxy_model.ny, proxy_model.nz), order="F"
+            )
+        ),
+    )
+    proxy_model.xrdata.set_dynamic_grid_xarray(
+        time_index,
+        "Temperature",
+        np.rot90(
+            temperature.reshape(
+                (proxy_model.nx, proxy_model.ny, proxy_model.nz), order="F"
+            )
+        ),
+    )
     for ts in time_step_arr:
         for _, w in enumerate(proxy_model.reservoir.wells):
             if w.name.lower().startswith("i"):
@@ -35,21 +45,33 @@ def execute(proxy_model, file_name, output_dir):
             else:
                 # w.control = proxy_model.physics.new_rate_water_prod(7500)
                 w.control = proxy_model.physics.new_mass_rate_water_prod(417000)
-                w.constraint = proxy_model.physics.new_bhp_prod(183)
+                # w.constraint = proxy_model.physics.new_bhp_prod(183)
 
         proxy_model.run(ts)
+        # fluxes = np.array(proxy_model.physics.engine.fluxes, copy=False)
+        # vels = proxy_model.reconstruct_velocities(fluxes[proxy_model.physics.engine.P_VAR::proxy_model.physics.N_VAR])
         time_index += 1
-        # properties = proxy_model.output_properties()
-        # pressure = properties[0, :]
-        # temperature = properties[2, :]
-        # proxy_model.xrdata.set_dynamic_grid_xarray(time_index,
-        #                                            "Pressure",
-        #                                            np.rot90(pressure.reshape((proxy_model.nx, proxy_model.ny,
-        #                                                                       proxy_model.nz), order='F')))
-        # proxy_model.xrdata.set_dynamic_grid_xarray(time_index,
-        #                                            "Temperature",
-        #                                            np.rot90(temperature.reshape((proxy_model.nx, proxy_model.ny,
-        #                                                                          proxy_model.nz), order='F')))
+        properties = proxy_model.output_properties()
+        pressure = properties[0, :]
+        temperature = properties[2, :]
+        proxy_model.xrdata.set_dynamic_grid_xarray(
+            time_index,
+            "Pressure",
+            np.rot90(
+                pressure.reshape(
+                    (proxy_model.nx, proxy_model.ny, proxy_model.nz), order="F"
+                )
+            ),
+        )
+        proxy_model.xrdata.set_dynamic_grid_xarray(
+            time_index,
+            "Temperature",
+            np.rot90(
+                temperature.reshape(
+                    (proxy_model.nx, proxy_model.ny, proxy_model.nz), order="F"
+                )
+            ),
+        )
         proxy_model.physics.engine.report()
     proxy_model.print_timers()
     proxy_model.print_stat()
@@ -57,9 +79,9 @@ def execute(proxy_model, file_name, output_dir):
     time_data_report = pd.DataFrame.from_dict(
         proxy_model.physics.engine.time_data_report
     )
-    # proxy_model.xrdata.set_dynamic_xarray(proxy_model.reservoir.wells, time_data_report)
-    #
-    # proxy_model.xrdata.write_xarray(file_name=file_name, output_dir=output_dir)
+    proxy_model.xrdata.set_dynamic_xarray(proxy_model.reservoir.wells, time_data_report)
+
+    proxy_model.xrdata.write_xarray(file_name=file_name, output_dir=output_dir)
 
     return time_data_report
 
