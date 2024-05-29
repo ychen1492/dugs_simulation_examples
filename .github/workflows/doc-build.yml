@@ -21,10 +21,10 @@ jobs:
           pip install sphinx sphinx_book_theme myst_parser sphinxcontrib-apidoc
       - name: Build the documentation
         run: |
-            cd doc
+            cd docs
             make html
             touch _build/html/.nojekyll
       - name: Deploy documentation
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-            folder: doc/_build/html
+            folder: docs/_build/html
