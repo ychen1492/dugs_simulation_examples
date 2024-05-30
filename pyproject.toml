@@ -14,3 +14,7 @@ atomic = true
 profile = "black"
 line_length = 130
 skip_gitignore = true
+
+[tool.setuptools_scm]
+version_scheme = "no-guess-dev"
+local_scheme = "node-and-date"

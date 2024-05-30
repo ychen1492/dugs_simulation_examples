@@ -4,7 +4,8 @@ import pickle
 import numpy as np
 import pyvista as pv
 from darts.engines import redirect_darts_output
-from model import Model
+
+from .model import Model
 
 
 def output_grid(nx, ny, permeability, nz=12):
