@@ -102,7 +102,8 @@ def upscale_porosity(poro, nz):
     return upscaled_array
 
 
-def stratified_model_simulation(nx, ny, nz, dx, dy, dz, n_points=32, overburden=0):
+def stratified_model_simulation(nx, ny, nz, dx, dy, dz, n_points=32, overburden=0, log_file="log_str_32.txt"):
+    redirect_darts_output(log_file)
     org_poro = generate_poro_normalized_distribution(100)
     po = upscale_porosity(org_poro, nz)
 
@@ -133,15 +134,15 @@ def stratified_model_simulation(nx, ny, nz, dx, dy, dz, n_points=32, overburden=
         overburden=overburden,
         n_points=n_points,
     )
-    redirect_darts_output(f"log_str_{n_points}.txt")
+
     proxy_model.init()
     # proxy_model.reservoir.mesh.init_grav_coef(0.)
 
     return proxy_model
 
 
-def heterogeneous_model_simulation(nx, ny, nz, dx, dy, dz, n_points=32, overburden=0):
-    redirect_darts_output(f"log_he_{n_points}.txt")
+def heterogeneous_model_simulation(nx, ny, nz, dx, dy, dz, n_points=32, overburden=0, log_file="log_he_32.txt"):
+    redirect_darts_output(log_file)
 
     cur_path = os.path.dirname(__file__)
     path_to_pickle = os.path.join(cur_path, "..", "..", "poro_he_new.pkl")
@@ -209,8 +210,8 @@ def heterogeneous_model_simulation(nx, ny, nz, dx, dy, dz, n_points=32, overburd
     return proxy_model
 
 
-def homogeneous_model_simulation(nx, ny, nz, dx, dy, dz, n_points=32, overburden=0):
-    redirect_darts_output(f"log_ho_{n_points}.txt")
+def homogeneous_model_simulation(nx, ny, nz, dx, dy, dz, n_points=32, overburden=0, log_file="log_ho_32.txt"):
+    redirect_darts_output(log_file)
     perms = np.ones(nx * ny * nz) * 800
     poros = np.ones(nx * ny * nz) * 0.2
 
