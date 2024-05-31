@@ -47,11 +47,11 @@ jobs:
           python-version: 3.9
       - name: Test with coverage
         run: |
+          pip install pytest
           pytest --cov --cov-report=xml
-      - name: Code Coverage
-        uses: codecov/codecov-action@v2
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
         with:
-          token: ${{secrets.CODECOV_TOKEN}}
-          version: "v0.1.15"
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           fail_ci_if_error: true
