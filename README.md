@@ -7,6 +7,8 @@
 
 
 Code quality checks
+
+
 [![codecov](https://codecov.io/gh/ychen1492/dugs_simulation_examples/branch/master/graph/badge.svg?token=W985RZZXSS)](https://codecov.io/gh/ychen1492/dugs_simulation_examples)
 <!--
 [![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/ychen1492/reference-simulation/python-app.yml?branch=master)](https://github.com/ychen1492/reference-simulation/actions/workflows/python-app.yml)
