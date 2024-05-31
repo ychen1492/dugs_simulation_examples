@@ -22,9 +22,9 @@ Direct Use Geothermal Systems (DUGS), which are also known as low enthalpy geoth
 
 ## Computational Dependencies
 - Packages and libraries
-    - Before running any py files, make sure the environment install `environment.yml`
+    - Before running any py files, make sure the environment install `requirements.txt`
     - Create a blank conda environment and activate it
-    - Run `pip install -r <path to environment.yml>` in terminal
+    - Run `pip install -r <path to requirements.txt>` in terminal
 
 ## Files explanation
 1. `src/model.py`
